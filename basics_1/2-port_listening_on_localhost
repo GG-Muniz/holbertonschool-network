@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Listen on TCP port 98 on localhost and echo received data
+
+set -euo pipefail
+
+PORT=98
+HOST=127.0.0.1
+
+if command -v nc >/dev/null 2>&1; then
+	nc -kl -s "$HOST" -p "$PORT"
+else
+	# Busybox or traditional netcat variations
+	netcat -kl -s "$HOST" -p "$PORT"
+fi
