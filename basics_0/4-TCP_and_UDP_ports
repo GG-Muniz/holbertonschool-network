@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
-# Display listening TCP and UDP ports with PID/program name
+# Display listening TCP/UDP ports with PID/program; include UNIX domain sockets
 
 set -euo pipefail
 
-if command -v ss >/dev/null 2>&1; then
-	ss -lntup
-else
+# Require root to display all PID/Program names
+if [ "${EUID:-$(id -u)}" -ne 0 ]; then
+	printf '%s\n' "This script must be run as root (use sudo)." >&2
+	exit 1
+fi
+
+if command -v netstat >/dev/null 2>&1; then
+	# Internet sockets (TCP/UDP, IPv4/IPv6)
 	netstat -lntup
+	# UNIX domain sockets
+	netstat -lxp
+else
+	# Internet sockets fallback
+	ss -lntup
+	# UNIX domain sockets fallback
+	ss -lxp
 fi
