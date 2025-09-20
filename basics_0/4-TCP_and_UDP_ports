@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
-# Display listening TCP/UDP ports with PID/program name
+# A script that displays listening ports
 
-set -euo pipefail
-
-if command -v netstat >/dev/null 2>&1; then
-	netstat -ltup
-else
-	ss -ltup
-fi
+netstat -ltup
+netstat -lxp
