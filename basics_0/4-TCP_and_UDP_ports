@@ -3,20 +3,13 @@
 
 set -euo pipefail
 
-# Require root to display all PID/Program names
-if [ "${EUID:-$(id -u)}" -ne 0 ]; then
-	printf '%s\n' "This script must be run as root (use sudo)." >&2
-	exit 1
-fi
-
 if command -v netstat >/dev/null 2>&1; then
-	# Internet sockets (TCP/UDP, IPv4/IPv6)
-	netstat -lntup
-	# UNIX domain sockets
+	# Active Internet connections (only servers)
+	netstat -ltup
+	# Active UNIX domain sockets (only servers)
 	netstat -lxp
 else
-	# Internet sockets fallback
-	ss -lntup
-	# UNIX domain sockets fallback
+	# Fallback with ss (format may differ)
+	ss -ltup
 	ss -lxp
 fi
