@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-# Bash script that displays listening ports
-netstat -lp
+# Display listening ports with PID/program names (Internet and UNIX)
+netstat -ltup
+netstat -lxp
