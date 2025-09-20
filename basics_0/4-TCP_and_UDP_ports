@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Display listening TCP and UDP ports with PID/program name
+
+set -euo pipefail
+
+if command -v ss >/dev/null 2>&1; then
+	ss -lntup
+else
+	netstat -lntup
+fi
