@@ -1,4 +1,4 @@
- second project #!/usr/bin/env bash
+#!/usr/bin/env bash
 # Listen on TCP port 98 on localhost and echo received data
 
 set -euo pipefail
