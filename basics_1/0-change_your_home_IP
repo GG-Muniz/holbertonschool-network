@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
-# Configure hosts so localhost->127.0.0.2 and facebook.com->8.8.8.8 on Ubuntu
+# Changes localhost to 127.0.0.2 and facebook.com to 8.8.8.8
 
-# Remove any existing localhost IPv4 mapping and set to 127.0.0.2
-sed -i '/^[[:space:]]*127\.[0-9.]*[[:space:]].*\blocalhost\b/d' /etc/hosts
-printf '127.0.0.2 localhost\n' >> /etc/hosts
-
-# Ensure facebook.com resolves to 8.8.8.8
-sed -i '/[[:space:]]facebook\.com\b/d' /etc/hosts
-printf '8.8.8.8 facebook.com\n' >> /etc/hosts
+sed -i "/localhost/d" /etc/hosts
+sed -i "/facebook.com/d" /etc/hosts
+echo "127.0.0.2 localhost" >> /etc/hosts
+echo "8.8.8.8 facebook.com" >> /etc/hosts
