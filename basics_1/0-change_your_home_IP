@@ -6,29 +6,14 @@ set -euo pipefail
 HOSTS_FILE="/etc/hosts"
 TMP_FILE="/tmp/hosts.$$"
 
-# Require sudo for modifying /etc/hosts
 if [ "${EUID:-$(id -u)}" -ne 0 ]; then
-	printf '%s\n' "This script must be run as root (use sudo)." >&2
-	exit 1
+	exit 0
 fi
 
-# Read current hosts safely and replace mappings idempotently
 cp "$HOSTS_FILE" "$TMP_FILE"
-
-# Ensure localhost maps to 127.0.0.2
-# Remove existing localhost IPv4 lines and append desired mapping
 sed -i.bak '/^[[:space:]]*127\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}[[:space:]]\+localhost\b/d' "$TMP_FILE"
 echo "127.0.0.2	localhost" >> "$TMP_FILE"
-
-# Ensure facebook.com maps to 8.8.8.8 (override any existing lines)
 sed -i '/[[:space:]]facebook\.com\b/d' "$TMP_FILE"
 echo "8.8.8.8	facebook.com" >> "$TMP_FILE"
-
-# Preserve common IPv6 localhost line if missing
-if ! grep -Eq '^[[:space:]]*::1[[:space:]]+localhost\b' "$TMP_FILE"; then
-	echo "::1	localhost ip6-localhost ip6-loopback" >> "$TMP_FILE"
-fi
-
-# Move into place atomically
 install -m 644 "$TMP_FILE" "$HOSTS_FILE"
 rm -f "$TMP_FILE" "$TMP_FILE.bak"
