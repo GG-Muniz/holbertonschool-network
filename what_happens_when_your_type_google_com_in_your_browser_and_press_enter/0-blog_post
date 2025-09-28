@@ -1,0 +1,30 @@
+﻿What happens when I type https://www.google.com and press Enter?
+
+Here’s how I think about it, step by step, from my laptop to Google and back.
+
+DNS request
+First my browser tries to figure out the IP for www.google.com. It checks its own cache, then asks the OS resolver. If there’s no cached answer, my resolver (often my router/ISP or 8.8.8.8) does the real work: it walks the DNS hierarchy—root → .com TLD → google.com’s authoritative servers—and gets A/AAAA records for www.google.com. That answer is cached for the TTL.
+
+TCP/IP
+With an IP in hand, the browser opens a connection to port 443. That’s a normal TCP three‑way handshake: SYN, SYN‑ACK, ACK. IP routing moves packets through gateways/ISPs; TCP keeps things reliable and ordered.
+
+Firewall
+On the way out, host and network firewalls allow established outbound traffic on 443 and track the connection so replies are let back in. Unsolicited traffic gets dropped.
+
+HTTPS/SSL
+Before any HTTP, the browser and server set up TLS. The client says  I want www.google.com (SNI) and proposes ciphers. The server sends back its certificate chain. My browser validates the chain against trusted CAs, checks the hostname and validity, and (with OCSP) that it isn’t revoked. A key exchange gives us shared keys, and now the connection is encrypted.
+
+Load balancer
+The public IP usually fronts a load balancer at the edge (often anycast/CDN). It may terminate TLS and spread requests across healthy backends (round‑robin, least‑connections, latency‑based), using health checks to keep bad instances out. Some setups re‑encrypt to the origin.
+
+Web server
+An HTTP server like Nginx/Apache handles the request. It can serve static assets directly and proxy dynamic requests upstream. It also adds useful headers (caching, compression, security) to responses.
+
+Application server
+Dynamic work happens here: routing, business logic, authentication, calling other services, etc. This could be Node.js, Python, Java—whatever the stack is—usually behind a process manager and speaking HTTP/FastCGI/uWSGI.
+
+Database
+If the app needs data, it uses a connection pool to talk to a database. Writes go to a primary, and reads may come from replicas if the system is set up that way. Transactions keep things consistent.
+
+Response
+The app returns a response to the web server, then to the load balancer, and back to my browser over the same TLS connection. The browser parses the HTML, pulls in subresources (often over HTTP/2 or HTTP/3), and renders the page.
